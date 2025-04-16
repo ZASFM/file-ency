@@ -7,6 +7,5 @@
 #include <arcfour.h>
 #include <assert.h>
 
-int8 * readkey(int8 *) ;
+int8 *readkey(int8 *);
 int main(int, char **);
-
