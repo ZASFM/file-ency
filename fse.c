@@ -1,6 +1,42 @@
 #include "headers/fse.h"
 
-int main(int argc, char argv[])
+// random number generator via sys random()
+int8 *securerand(int16 size)
+{
+   int8 *start, *p;
+   size_t n;
+
+   assert(size > 0);
+   p = (int *)malloc(size);
+   assert(p);
+   start = p;
+
+   n = getrandom(p, (size_t)size, GRND_RANDOM | GRND_NONBLOCK);
+
+   if (n == size)
+      return p;
+   if (n < 0)
+   {
+      free(p);
+      return 0;
+   }
+
+   fprintf(stderr, "Warning: Entropy pool is empty");
+
+   // if fails, call again
+   p += n;
+   n = getrandom(p, (size - n), GRND_RANDOM);
+
+   if (n == size)
+      return start;
+   if (n < 0)
+   {
+      free(start);
+      return 0;
+   }
+}
+
+int main(int argc, char *argv[])
 {
    /**************state************ */
    Arcfour *rc4;
@@ -24,7 +60,7 @@ int main(int argc, char argv[])
    outfile = argv[2];
 
    infd = open(infile, O_RDONLY);
-   if (infile < 1)
+   if (infd < 1)
    {
       perror("open");
       return -1;
@@ -48,4 +84,10 @@ int main(int argc, char argv[])
    padsize16 = (int16 *)padsize8;
    padsize = *padsize16;
    printf("padsize: %d\n", (int)padsize);
+
+   close(infd);
+   close(outfd);
+   free(padsize);
+
+   return 0;
 }
