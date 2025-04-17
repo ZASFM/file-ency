@@ -11,4 +11,4 @@
 
 int8 *securerand(int16);
 int8 *readkey(int8 *);
-int main(int, char **);
+
